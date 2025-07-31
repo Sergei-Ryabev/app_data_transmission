@@ -1,5 +1,6 @@
-from PySide6.QtCore import QObject, Signal, Slot
 from typing import Any
+
+from PySide6.QtCore import QObject, Signal, Slot
 
 
 class ChangeEvent:
@@ -8,21 +9,17 @@ class ChangeEvent:
         self.old_value = old_value
         self.new_value = new_value
 
-class EventSender(QObject):
 
-    signal = Signal(ChangeEvent)
+class GlobalData(QObject):
+    update_signal = Signal(ChangeEvent)
+
     @Slot(ChangeEvent)
     def send_signal(self,change_event:ChangeEvent):
-        self.signal.emit(change_event)
-
-
-class GlobalData():
-    signal = Signal(str)
+        self.update_signal.emit(change_event)
 
     def __init__(self):
-        self._sender = EventSender()
+        super().__init__()
         self.i=0
-        pass
 
     def __setattr__(self, name, value):
         if name.startswith('_'):
@@ -35,7 +32,7 @@ class GlobalData():
                         old_value=old_value,
                         new_value=value
             )
-            self._sender.send_signal(event)
+            self.send_signal(event)
 
 class Basis:
     global_data=GlobalData()
